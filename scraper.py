@@ -18,10 +18,14 @@ title = soup.find("h1")
 '''
 
 books = soup.find_all("h3")
+prices = soup.find_all("p", class_ = "price_color")
+
 
 '''
 print(len(books))
 print(books[0])
+print(len(prices)) 
+print(prices[0])
 # print(books[0].text) - but this will only display the visible text 
 print(books[0].find("a")["title"])
 '''
@@ -35,9 +39,11 @@ print(books[0].find("a")["title"])
 
 #sentiment contains subjectivity and polarity
 
-for i,book in enumerate(books,1):
+for i,(book,price) in enumerate(zip(books, prices),1):
     title = book.find("a")["title"]
-    # print(f"{i}. {title}")
+    price_text = price.text.replace("Â","")
+    price_value = float(price_text[1:]) #to remove the unwanted symbol
+
     analysis = TextBlob(title)
     polarity = analysis.sentiment.polarity # we are also concerned with polarity rn
 
@@ -49,14 +55,20 @@ for i,book in enumerate(books,1):
         sentiment = "Neutral"
 
     if sentiment == "Positive":
-        decision = "Buy"
+        if price_value < 30:
+            decision = "Buy"
+        else:
+            decision = "Wait"
+
     elif sentiment == "Negative":
         decision = "Avoid"
     else:
-        sentiment == "Neutral"
+        # sentiment == "Neutral"
         decision = "Wait"
 
-    print(f"{i}. {title} -> {sentiment} -> {decision}")
+    print(f"{i}. {title} | {price_text} -> {sentiment} -> {decision}")
+#we used price_text here to show the symbol also , but for comparing we convert it into
+# price_value
 
 
 
