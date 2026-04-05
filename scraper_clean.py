@@ -1,5 +1,6 @@
 import requests
 import csv
+import matplotlib.pyplot as plt
 from bs4 import BeautifulSoup
 from textblob import TextBlob
 
@@ -40,8 +41,14 @@ def save_to_csv(i,title, price_text, sentiment, decision,writer):
     if decision in ["Buy", "Wait"]:
         writer.writerow([i,title,price_text,sentiment,decision])
 
+
+
 def main():
     books,prices = fetch_data()
+    
+    buy_count = 0
+    wait_count = 0
+    avoid_count = 0
 
     file = open("buywise_result.csv", "w", newline="",encoding="utf-8")
     writer = csv.writer(file)
@@ -55,10 +62,28 @@ def main():
 
         sentiment,decision = analyze_book(title,price_value)
 
+        if decision == "Buy":
+            buy_count += 1
+        elif decision == "Wait":
+            wait_count += 1
+        else:
+            avoid_count += 1
+
         save_to_csv(i, title, price_text, sentiment, decision,writer)
 
         if decision == "Buy":
             print(f"BUY: {title} | {price_text}")
+
+
+    labels = ["Buy","Wait","Avoid"]
+    values = [buy_count,wait_count,avoid_count]
+
+    plt.figure()
+    plt.bar(labels, values)
+    plt.title("BuyWise Decision Analysis")
+    plt.xlabel("Decision Type")
+    plt.ylabel("Number of Products")
+    plt.show()
 
     file.close()
 
