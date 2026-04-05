@@ -1,4 +1,5 @@
 import requests
+import csv
 from bs4 import BeautifulSoup
 from textblob import TextBlob
 
@@ -39,6 +40,11 @@ print(books[0].find("a")["title"])
 
 #sentiment contains subjectivity and polarity
 
+#Create file,Write (overwrite), Write clean rows (no extra gaps), Support all characters safely
+file = open("buywise_result.csv", "w", newline="",encoding="utf-8")
+writer = csv.writer(file) # used to write structured data row by row into a CSV file
+
+writer.writerow(["Index", "Title", "Price", "Sentiment", "Decision"])
 for i,(book,price) in enumerate(zip(books, prices),1):
     title = book.find("a")["title"]
     price_text = price.text.replace("Â","")
@@ -57,6 +63,8 @@ for i,(book,price) in enumerate(zip(books, prices),1):
     if sentiment == "Positive":
         if price_value < 30:
             decision = "Buy"
+            writer.writerow([i,title,price_text,sentiment,decision])
+
         else:
             decision = "Wait"
 
@@ -66,10 +74,14 @@ for i,(book,price) in enumerate(zip(books, prices),1):
         # sentiment == "Neutral"
         decision = "Wait"
 
-    print(f"{i}. {title} | {price_text} -> {sentiment} -> {decision}")
+    if decision == "Buy":
+        print(f"BUY: {title} | {price_text}")
+    # print(f"{i}. {title} | {price_text} -> {sentiment} -> {decision}")
 #we used price_text here to show the symbol also , but for comparing we convert it into
 # price_value
 
+file.close()
+print("\nBuyWise: Filtered results saved successfully!")
 
 
 # for t in titles: (skipping list)
@@ -78,4 +90,3 @@ for i,(book,price) in enumerate(zip(books, prices),1):
 # print(response)
 # print(response.text)
 # print(soup.prettify())
-
